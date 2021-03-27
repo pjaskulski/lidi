@@ -1,2 +1,2 @@
 # lidi
-Little english-polish dictionary, mysql app with API in Golang
+lidi - little English-Polish dictionary, MySQL app with API in Golang
