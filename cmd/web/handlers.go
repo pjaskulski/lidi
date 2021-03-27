@@ -74,4 +74,6 @@ func createWord(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 }
