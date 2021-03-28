@@ -2,5 +2,7 @@ github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gG
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
 github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/hegedustibor/htgo-tts v0.0.0-20210201070456-160968fe187c h1:Np7TgCBSR2CzNs2M/9OzJlS1QqJA+Mj7ee7LPwLc3bc=
+github.com/hegedustibor/htgo-tts v0.0.0-20210201070456-160968fe187c/go.mod h1:RMCXb2VPY7VmPHclIib3rBrcDTJuOUlVnQwp8iBJNTo=
 github.com/integrii/flaggy v1.4.4 h1:8fGyiC14o0kxhTqm2VBoN19fDKPZsKipP7yggreTMDc=
 github.com/integrii/flaggy v1.4.4/go.mod h1:tnTxHeTJbah0gQ6/K0RW0J7fMUBk9MCF5blhm43LNpI=

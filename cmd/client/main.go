@@ -14,6 +14,7 @@ type Word struct {
 
 var cfg struct {
 	addressFlag string
+	speakFlag   bool
 }
 
 var (
@@ -23,6 +24,7 @@ var (
 	appWord    string
 	cmdEnglish *flaggy.Subcommand
 	cmdPolish  *flaggy.Subcommand
+	cmdSpeak   *flaggy.Subcommand
 	//cmdAdd     *flaggy.Subcommand
 )
 
@@ -37,7 +39,8 @@ func init() {
 	flaggy.SetVersion(appVersion)
 	flaggy.DefaultParser.ShowHelpOnUnexpected = true
 
-	flaggy.String(&cfg.addressFlag, "-s", "server", "dictionary server address")
+	flaggy.String(&cfg.addressFlag, "s", "server", "dictionary server address")
+	flaggy.Bool(&cfg.speakFlag, "p", "speak", "speak English after translate")
 
 	cmdEnglish = flaggy.NewSubcommand("en")
 	cmdEnglish.Description = "translate from English to Polish"
@@ -49,14 +52,26 @@ func init() {
 	cmdPolish.AddPositionalValue(&appWord, "word", 1, true, "word to translate")
 	flaggy.AttachSubcommand(cmdPolish, 1)
 
+	cmdSpeak = flaggy.NewSubcommand("speak")
+	cmdSpeak.Description = "say in English (Google API is used)"
+	cmdSpeak.AddPositionalValue(&appWord, "word", 1, true, "word to speak")
+	flaggy.AttachSubcommand(cmdSpeak, 1)
+
 	flaggy.Parse()
 }
 
 func main() {
+	if (cmdEnglish.Used || cmdPolish.Used || cmdSpeak.Used) && appWord == "" {
+		flaggy.ShowHelp("")
+		os.Exit(1)
+	}
+
 	if cmdEnglish.Used {
-		translateEnglish(appWord)
+		translateEnglish(appWord, cfg.speakFlag)
 	} else if cmdPolish.Used {
-		translatePolish(appWord)
+		translatePolish(appWord, cfg.speakFlag)
+	} else if cmdSpeak.Used {
+		speak(appWord)
 	} else {
 		/*
 			if no correct subcommand is given, a general help is displayed

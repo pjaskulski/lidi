@@ -28,7 +28,13 @@ func getPolish(w http.ResponseWriter, r *http.Request) {
 		}
 		words = append(words, word)
 	}
-	json.NewEncoder(w).Encode(words)
+
+	if len(words) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+	} else {
+		json.NewEncoder(w).Encode(words)
+	}
+
 }
 
 func getEnglish(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +57,11 @@ func getEnglish(w http.ResponseWriter, r *http.Request) {
 		}
 		words = append(words, word)
 	}
-	json.NewEncoder(w).Encode(words)
+	if len(words) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+	} else {
+		json.NewEncoder(w).Encode(words)
+	}
 }
 
 func createWord(w http.ResponseWriter, r *http.Request) {

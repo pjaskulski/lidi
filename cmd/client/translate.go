@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func translateEnglish(word string) {
+func translateEnglish(word string, runSpeak bool) {
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -29,12 +29,16 @@ func translateEnglish(word string) {
 	}
 	defer r.Body.Close()
 
-	if r.StatusCode >= 400 {
+	if r.StatusCode == 404 {
+		log.Println("No translation found")
+		return
+	} else if r.StatusCode >= 400 {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
 		log.Fatal(string(body))
+		return
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
@@ -51,10 +55,13 @@ func translateEnglish(word string) {
 
 	for _, item := range translateWords {
 		fmt.Println(item.English, " = ", item.Polish)
+		if runSpeak {
+			speak(item.English)
+		}
 	}
 }
 
-func translatePolish(word string) {
+func translatePolish(word string, runSpeak bool) {
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -74,12 +81,16 @@ func translatePolish(word string) {
 	}
 	defer r.Body.Close()
 
-	if r.StatusCode >= 400 {
+	if r.StatusCode == 404 {
+		log.Println("No translation found")
+		return
+	} else if r.StatusCode >= 400 {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
 		log.Fatal(string(body))
+		return
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
@@ -96,5 +107,8 @@ func translatePolish(word string) {
 
 	for _, item := range translateWords {
 		fmt.Println(item.Polish, " = ", item.English)
+		if runSpeak {
+			speak(item.English)
+		}
 	}
 }
