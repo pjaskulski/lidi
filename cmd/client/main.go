@@ -12,6 +12,14 @@ type Word struct {
 	Polish  string `json:"polish"`
 }
 
+type WordUpdate struct {
+	ID         string `json:"id"`
+	English    string `json:"english"`
+	Polish     string `json:"polish"`
+	EnglishNew string `json:"englishNew"`
+	PolishNew  string `json:"polishNew"`
+}
+
 var cfg struct {
 	addressFlag string
 	speakFlag   bool
@@ -26,6 +34,8 @@ var (
 	cmdPolish  *flaggy.Subcommand
 	cmdSpeak   *flaggy.Subcommand
 	cmdAdd     *flaggy.Subcommand
+	cmdUpdate  *flaggy.Subcommand
+	cmdDelete  *flaggy.Subcommand
 )
 
 func init() {
@@ -39,34 +49,44 @@ func init() {
 	flaggy.SetVersion(appVersion)
 	flaggy.DefaultParser.ShowHelpOnUnexpected = true
 
-	flaggy.String(&cfg.addressFlag, "s", "server", "dictionary server address")
-	flaggy.Bool(&cfg.speakFlag, "p", "speak", "speak English after translate")
+	flaggy.String(&cfg.addressFlag, "s", "server", "Dictionary server address")
+	flaggy.Bool(&cfg.speakFlag, "p", "speak", "Speak English after translate")
 
 	cmdEnglish = flaggy.NewSubcommand("en")
-	cmdEnglish.Description = "translate from English to Polish"
+	cmdEnglish.Description = "Translate from English to Polish"
 	cmdEnglish.AddPositionalValue(&appWord, "word", 1, true, "word to translate")
 	flaggy.AttachSubcommand(cmdEnglish, 1)
 
 	cmdPolish = flaggy.NewSubcommand("pl")
-	cmdPolish.Description = "translate from Polish to English"
+	cmdPolish.Description = "Translate from Polish to English"
 	cmdPolish.AddPositionalValue(&appWord, "word", 1, true, "word to translate")
 	flaggy.AttachSubcommand(cmdPolish, 1)
 
 	cmdSpeak = flaggy.NewSubcommand("speak")
-	cmdSpeak.Description = "say in English (Google API is used)"
+	cmdSpeak.Description = "Say in English (Google API is used)"
 	cmdSpeak.AddPositionalValue(&appWord, "word", 1, true, "word to speak")
 	flaggy.AttachSubcommand(cmdSpeak, 1)
 
 	cmdAdd = flaggy.NewSubcommand("add")
-	cmdAdd.Description = "add new item to dictionary (English=Polish)"
+	cmdAdd.Description = "Add new item to dictionary (English=Polish)"
 	cmdAdd.AddPositionalValue(&appWord, "word", 1, true, "translation in form: English=Polish")
 	flaggy.AttachSubcommand(cmdAdd, 1)
+
+	cmdUpdate = flaggy.NewSubcommand("update")
+	cmdUpdate.Description = "Update item in dictionary (English=Polish:NewEnglish=NewPolish)"
+	cmdUpdate.AddPositionalValue(&appWord, "word", 1, true, "old and new translation in form: English=Polish:NewEnglish=NewPolish")
+	flaggy.AttachSubcommand(cmdUpdate, 1)
+
+	cmdDelete = flaggy.NewSubcommand("delete")
+	cmdDelete.Description = "Delete item in dictionary (English=Polish)"
+	cmdDelete.AddPositionalValue(&appWord, "word", 1, true, "translation to delete in form: English=Polish")
+	flaggy.AttachSubcommand(cmdDelete, 1)
 
 	flaggy.Parse()
 }
 
 func main() {
-	if (cmdEnglish.Used || cmdPolish.Used || cmdSpeak.Used) && appWord == "" {
+	if (cmdEnglish.Used || cmdPolish.Used || cmdSpeak.Used || cmdAdd.Used || cmdUpdate.Used) && appWord == "" {
 		flaggy.ShowHelp("")
 		os.Exit(1)
 	}
@@ -79,6 +99,10 @@ func main() {
 		speak(appWord)
 	} else if cmdAdd.Used {
 		addTranslation(appWord)
+	} else if cmdUpdate.Used {
+		updateTranslation(appWord)
+	} else if cmdDelete.Used {
+		deleteTranslation(appWord)
 	} else {
 		/*
 			if no correct subcommand is given, a general help is displayed

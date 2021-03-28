@@ -47,8 +47,8 @@ func main() {
 	router.HandleFunc("/api/en/{word}", getPolish).Methods("GET")
 	router.HandleFunc("/api/add", createWord).Methods("POST")
 	router.HandleFunc("/api/pl/{word}", getEnglish).Methods("GET")
-	//router.HandleFunc("/api/update", updateWord).Methods("PUT")
-	//router.HandleFunc("/api/delete", deleteWord).Methods("DELETE")
+	router.HandleFunc("/api/update", updateWord).Methods("PUT")
+	router.HandleFunc("/api/delete", deleteWord).Methods("DELETE")
 
 	fmt.Printf("Start serwera, port %s", *addr)
 	http.ListenAndServe(*addr, router)

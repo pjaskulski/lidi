@@ -22,4 +22,5 @@ LINES TERMINATED BY '\n'
 (english, polish);
 
 -- Test:
-SELECT polish FROM engpol where english='domestic';
+SELECT polish FROM engpol where english='richer';
+SELECT COUNT(*) FROM engpol;

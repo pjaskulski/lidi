@@ -64,6 +64,7 @@ func getEnglish(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// dołączanie nowego tłumaczenia do bazy danych
 func createWord(w http.ResponseWriter, r *http.Request) {
 	stmt, err := db.Prepare("INSERT INTO engpol(english, polish) VALUES(?, ?)")
 	if err != nil {
@@ -77,7 +78,7 @@ func createWord(w http.ResponseWriter, r *http.Request) {
 
 	keyVal := make(map[string]string)
 	json.Unmarshal(body, &keyVal)
-	english := keyVal["englih"]
+	english := keyVal["english"]
 	polish := keyVal["polish"]
 	_, err = stmt.Exec(english, polish)
 	if err != nil {
@@ -86,4 +87,57 @@ func createWord(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+}
+
+// aktualizacja tłumaczenia w bazie danych
+func updateWord(w http.ResponseWriter, r *http.Request) {
+	stmt, err := db.Prepare("UPDATE engpol SET english=?, polish=? WHERE english=? AND polish=?")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	keyVal := make(map[string]string)
+	json.Unmarshal(body, &keyVal)
+	english := keyVal["english"]
+	polish := keyVal["polish"]
+	englishNew := keyVal["englishNew"]
+	polishNew := keyVal["polishNew"]
+	_, err = stmt.Exec(englishNew, polishNew, english, polish)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
+// obsługa usuwania tłumaczenia z bazy danych
+func deleteWord(w http.ResponseWriter, r *http.Request) {
+	stmt, err := db.Prepare("DELETE FROM engpol WHERE english=? AND polish=?")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	keyVal := make(map[string]string)
+	json.Unmarshal(body, &keyVal)
+	english := keyVal["english"]
+	polish := keyVal["polish"]
+
+	_, err = stmt.Exec(english, polish)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
