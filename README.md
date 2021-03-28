@@ -23,7 +23,7 @@ Client:
 
 ```
 Usage:
-    lidi [en|pl] word
+    lidi-client [en|pl] word
 
   Subcommands: 
     en      translate from English to Polish
@@ -38,6 +38,10 @@ Usage:
     -h --help      Displays help with available flag, subcommand, and positional value parameters.
     -s --server    dictionary server address (default: http://localhost:8080)
     -p --speak     speak English after translate
+
+  Example:
+    1. lidi-server
+    2. lidi-client en house -p 
 ```
 
 Speak command (and -p flag) use [htgo-tts](https://github.com/hegedustibor/htgo-tts) lib,

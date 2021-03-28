@@ -2,23 +2,28 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
-func translateEnglish(word string, runSpeak bool) {
+// funkcja pobiera tłumaczenie poprzez REST API z serwera lidi-server
+// zwracana jest odpowiedź w formie tablicy bajów i błąd (lub nil)
+func getTranslation(word string, lang string) ([]byte, error) {
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
 
 	format := "application/json"
-	url := fmt.Sprintf("%s/api/en/%s", cfg.addressFlag, word)
+	url := fmt.Sprintf("%s/api/%s/%s", cfg.addressFlag, lang, word)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 
 	req.Header.Set("Accept", format)
@@ -26,22 +31,32 @@ func translateEnglish(word string, runSpeak bool) {
 	r, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 	defer r.Body.Close()
 
 	if r.StatusCode == 404 {
-		log.Println("No translation found")
-		return
+		return nil, errors.New("no translation found")
 	} else if r.StatusCode >= 400 {
+		txtError := fmt.Sprintf("error: %d", r.StatusCode)
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Fatal(err)
+			txtError += ", " + err.Error()
 		}
-		log.Fatal(string(body))
-		return
+		txtError += ", " + string(body)
+		return nil, errors.New(txtError)
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return data, nil
+}
+
+// tłumaczennie z angielskiego na polski
+func translateEnglish(word string, runSpeak bool) {
+	data, err := getTranslation(word, "en")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,39 +76,9 @@ func translateEnglish(word string, runSpeak bool) {
 	}
 }
 
+// tłumaczenie z polskiego na angielski
 func translatePolish(word string, runSpeak bool) {
-	client := &http.Client{
-		Timeout: time.Second * 10,
-	}
-
-	format := "application/json"
-	url := fmt.Sprintf("%s/api/pl/%s", cfg.addressFlag, word)
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	req.Header.Set("Accept", format)
-
-	r, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer r.Body.Close()
-
-	if r.StatusCode == 404 {
-		log.Println("No translation found")
-		return
-	} else if r.StatusCode >= 400 {
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Fatal(string(body))
-		return
-	}
-
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := getTranslation(word, "pl")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -111,4 +96,13 @@ func translatePolish(word string, runSpeak bool) {
 			speak(item.English)
 		}
 	}
+}
+
+func addTranslation(translation string) {
+	words := strings.Split(translation, "=")
+	if len(words) != 2 {
+		log.Fatal("error: new translation in form English=Polish was expected ex. house=dom")
+		return
+	}
+
 }

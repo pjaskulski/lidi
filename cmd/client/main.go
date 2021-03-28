@@ -25,7 +25,7 @@ var (
 	cmdEnglish *flaggy.Subcommand
 	cmdPolish  *flaggy.Subcommand
 	cmdSpeak   *flaggy.Subcommand
-	//cmdAdd     *flaggy.Subcommand
+	cmdAdd     *flaggy.Subcommand
 )
 
 func init() {
@@ -57,6 +57,11 @@ func init() {
 	cmdSpeak.AddPositionalValue(&appWord, "word", 1, true, "word to speak")
 	flaggy.AttachSubcommand(cmdSpeak, 1)
 
+	cmdAdd = flaggy.NewSubcommand("add")
+	cmdAdd.Description = "add new item to dictionary (English=Polish)"
+	cmdAdd.AddPositionalValue(&appWord, "word", 1, true, "translation in form: English=Polish")
+	flaggy.AttachSubcommand(cmdAdd, 1)
+
 	flaggy.Parse()
 }
 
@@ -72,6 +77,8 @@ func main() {
 		translatePolish(appWord, cfg.speakFlag)
 	} else if cmdSpeak.Used {
 		speak(appWord)
+	} else if cmdAdd.Used {
+		addTranslation(appWord)
 	} else {
 		/*
 			if no correct subcommand is given, a general help is displayed
