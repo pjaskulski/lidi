@@ -24,3 +24,13 @@ LINES TERMINATED BY '\n'
 -- Test:
 SELECT polish FROM engpol where english='richer';
 SELECT COUNT(*) FROM engpol;
+
+-- eksport danych
+SELECT 
+    english, polish 
+FROM engpol 
+INTO OUTFILE 'words_export.csv'
+CHARACTER SET utf8
+FIELDS TERMINATED BY ','
+OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
