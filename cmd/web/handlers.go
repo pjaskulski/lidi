@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -16,7 +17,7 @@ func getPolish(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 
-	words = recordFind("english", params["word"])
+	words = lidiDB.recordFind("english", params["word"])
 
 	if len(words) == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -33,7 +34,7 @@ func getEnglish(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 
-	words = recordFind("polish", params["word"])
+	words = lidiDB.recordFind("polish", params["word"])
 
 	if len(words) == 0 {
 		w.WriteHeader(http.StatusNotFound)
@@ -57,7 +58,7 @@ func createWord(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	result, err := recordAdd(english, polish)
+	result, err := lidiDB.recordAdd(english, polish)
 	if !result {
 		w.WriteHeader(http.StatusConflict)
 		if err != nil {
@@ -80,14 +81,16 @@ func updateWord(w http.ResponseWriter, r *http.Request) {
 
 	keyVal := make(map[string]string)
 	json.Unmarshal(body, &keyVal)
+	id, err := strconv.Atoi(keyVal["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
 	english := keyVal["english"]
 	polish := keyVal["polish"]
-	englishNew := keyVal["englishNew"]
-	polishNew := keyVal["polishNew"]
 
 	w.Header().Set("Content-Type", "application/json")
 
-	result, err := recordUpdate(englishNew, polishNew, english, polish)
+	result, err := lidiDB.recordUpdate(id, english, polish)
 	if !result {
 		w.WriteHeader(http.StatusConflict)
 		if err != nil {
@@ -109,12 +112,14 @@ func deleteWord(w http.ResponseWriter, r *http.Request) {
 
 	keyVal := make(map[string]string)
 	json.Unmarshal(body, &keyVal)
-	english := keyVal["english"]
-	polish := keyVal["polish"]
+	id, err := strconv.Atoi(keyVal["id"])
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 
-	result, err := recordDelete(english, polish)
+	result, err := lidiDB.recordDelete(id)
 
 	if !result {
 		w.WriteHeader(http.StatusConflict)

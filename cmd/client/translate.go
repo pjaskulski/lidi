@@ -8,9 +8,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 )
+
+var ErrorNotFound error = errors.New("no translation found")
 
 // funkcja pobiera tłumaczenie poprzez REST API z serwera lidi-server
 // zwracana jest odpowiedź w formie tablicy bajów i błąd (lub nil)
@@ -35,7 +39,7 @@ func getTranslation(word string, lang string) ([]byte, error) {
 	defer r.Body.Close()
 
 	if r.StatusCode == 404 {
-		return nil, errors.New("no translation found")
+		return nil, ErrorNotFound
 	} else if r.StatusCode >= 400 {
 		txtError := fmt.Sprintf("error: %d", r.StatusCode)
 		body, err := ioutil.ReadAll(r.Body)
@@ -54,10 +58,14 @@ func getTranslation(word string, lang string) ([]byte, error) {
 }
 
 // tłumaczennie z angielskiego na polski
-func translateEnglish(word string, runSpeak bool) {
+func translateEnglish(word string, runSpeak bool, showID bool) {
 	data, err := getTranslation(word, "en")
 	if err != nil {
-		log.Fatal(err)
+		if err != ErrorNotFound {
+			log.Fatal(err)
+		}
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	var translateWords []Word
@@ -68,7 +76,11 @@ func translateEnglish(word string, runSpeak bool) {
 	}
 
 	for _, item := range translateWords {
-		fmt.Println(item.English, " = ", item.Polish)
+		if showID {
+			fmt.Println("ID:", item.ID, item.English, " = ", item.Polish)
+		} else {
+			fmt.Println(item.English, " = ", item.Polish)
+		}
 		if runSpeak {
 			speak(item.English)
 		}
@@ -76,10 +88,14 @@ func translateEnglish(word string, runSpeak bool) {
 }
 
 // tłumaczenie z polskiego na angielski
-func translatePolish(word string, runSpeak bool) {
+func translatePolish(word string, runSpeak bool, showID bool) {
 	data, err := getTranslation(word, "pl")
 	if err != nil {
-		log.Fatal(err)
+		if err != ErrorNotFound {
+			log.Fatal(err)
+		}
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	var translateWords []Word
@@ -90,7 +106,11 @@ func translatePolish(word string, runSpeak bool) {
 	}
 
 	for _, item := range translateWords {
-		fmt.Println(item.Polish, " = ", item.English)
+		if showID {
+			fmt.Println("ID:", item.ID, item.Polish, " = ", item.English)
+		} else {
+			fmt.Println(item.Polish, " = ", item.English)
+		}
 		if runSpeak {
 			speak(item.English)
 		}
@@ -139,30 +159,25 @@ func addTranslation(translation string) {
 	fmt.Println("New translation accepted")
 }
 
-func updateTranslation(translation string) {
-	oldAndNew := strings.Split(translation, ":")
-	if len(oldAndNew) != 2 {
-		log.Fatal("error: update translation in form OldEnglish=OldPolish:NewEnglish=NewPolish was expected ex. house=dom:home=dom")
+func updateTranslation(recID string, word string) {
+	_, err := strconv.Atoi(recID)
+	if err != nil {
+		log.Fatal("error: valid record id was expected")
 	}
 
-	oldTranslation := strings.Split(oldAndNew[0], "=")
-	if len(oldTranslation) != 2 {
-		log.Fatal("error: update translation in form OldEnglish=OldPolish:NewEnglish=NewPolish was expected ex. house=dom:home=dom")
-	}
-	newTranslation := strings.Split(oldAndNew[1], "=")
-	if len(newTranslation) != 2 {
-		log.Fatal("error: update translation in form OldEnglish=OldPolish:NewEnglish=NewPolish was expected ex. house=dom:home=dom")
+	translation := strings.Split(word, "=")
+	if len(translation) != 2 {
+		log.Fatal("error: updated translation in form NewEnglish=NewPolish was expected ex. home=dom")
 	}
 
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
 
-	todo := &WordUpdate{
-		English:    oldTranslation[0],
-		Polish:     oldTranslation[1],
-		EnglishNew: newTranslation[0],
-		PolishNew:  newTranslation[1],
+	todo := &Word{
+		ID:      recID,
+		English: translation[0],
+		Polish:  translation[1],
 	}
 
 	post, err := json.Marshal(todo)
@@ -192,10 +207,10 @@ func updateTranslation(translation string) {
 	fmt.Println("Update accepted")
 }
 
-func deleteTranslation(translation string) {
-	words := strings.Split(translation, "=")
-	if len(words) != 2 {
-		log.Fatal("error: delete translation in form English=Polish was expected ex. house=dom")
+func deleteTranslation(recID string) {
+	_, err := strconv.Atoi(recID)
+	if err != nil {
+		log.Fatal("error: valid record id was expected")
 	}
 
 	client := &http.Client{
@@ -203,8 +218,7 @@ func deleteTranslation(translation string) {
 	}
 
 	todo := &Word{
-		English: words[0],
-		Polish:  words[1],
+		ID: recID,
 	}
 
 	post, err := json.Marshal(todo)

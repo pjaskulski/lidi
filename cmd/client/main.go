@@ -12,30 +12,24 @@ type Word struct {
 	Polish  string `json:"polish"`
 }
 
-type WordUpdate struct {
-	ID         string `json:"id"`
-	English    string `json:"english"`
-	Polish     string `json:"polish"`
-	EnglishNew string `json:"englishNew"`
-	PolishNew  string `json:"polishNew"`
-}
-
 var cfg struct {
 	addressFlag string
 	speakFlag   bool
+	showIdFlag  bool
 }
 
 var (
-	appName    string = "lidi"
-	appVersion string = "0.0.1"
-	appDesc    string = "A little dictionary client app"
-	appWord    string
-	cmdEnglish *flaggy.Subcommand
-	cmdPolish  *flaggy.Subcommand
-	cmdSpeak   *flaggy.Subcommand
-	cmdAdd     *flaggy.Subcommand
-	cmdUpdate  *flaggy.Subcommand
-	cmdDelete  *flaggy.Subcommand
+	appName          string = "lidi"
+	appVersion       string = "0.0.1"
+	appDesc          string = "A little dictionary client app"
+	appWord          string
+	appTranslationID string
+	cmdEnglish       *flaggy.Subcommand
+	cmdPolish        *flaggy.Subcommand
+	cmdSpeak         *flaggy.Subcommand
+	cmdAdd           *flaggy.Subcommand
+	cmdUpdate        *flaggy.Subcommand
+	cmdDelete        *flaggy.Subcommand
 )
 
 func init() {
@@ -51,6 +45,7 @@ func init() {
 
 	flaggy.String(&cfg.addressFlag, "s", "server", "Dictionary server address")
 	flaggy.Bool(&cfg.speakFlag, "p", "speak", "Speak English after translate")
+	flaggy.Bool(&cfg.showIdFlag, "i", "id", "show record id")
 
 	cmdEnglish = flaggy.NewSubcommand("en")
 	cmdEnglish.Description = "Translate from English to Polish"
@@ -73,13 +68,14 @@ func init() {
 	flaggy.AttachSubcommand(cmdAdd, 1)
 
 	cmdUpdate = flaggy.NewSubcommand("update")
-	cmdUpdate.Description = "Update item in dictionary (English=Polish:NewEnglish=NewPolish)"
-	cmdUpdate.AddPositionalValue(&appWord, "word", 1, true, "old and new translation in form: English=Polish:NewEnglish=NewPolish")
+	cmdUpdate.Description = "Update item in dictionary (ID English=Polish)"
+	cmdUpdate.AddPositionalValue(&appTranslationID, "id", 1, true, "translation ID from database")
+	cmdUpdate.AddPositionalValue(&appWord, "word", 2, true, "new translation in form: English=Polish")
 	flaggy.AttachSubcommand(cmdUpdate, 1)
 
 	cmdDelete = flaggy.NewSubcommand("delete")
 	cmdDelete.Description = "Delete item in dictionary (English=Polish)"
-	cmdDelete.AddPositionalValue(&appWord, "word", 1, true, "translation to delete in form: English=Polish")
+	cmdDelete.AddPositionalValue(&appTranslationID, "id", 1, true, "translation ID from database")
 	flaggy.AttachSubcommand(cmdDelete, 1)
 
 	flaggy.Parse()
@@ -92,17 +88,17 @@ func main() {
 	}
 
 	if cmdEnglish.Used {
-		translateEnglish(appWord, cfg.speakFlag)
+		translateEnglish(appWord, cfg.speakFlag, cfg.showIdFlag)
 	} else if cmdPolish.Used {
-		translatePolish(appWord, cfg.speakFlag)
+		translatePolish(appWord, cfg.speakFlag, cfg.showIdFlag)
 	} else if cmdSpeak.Used {
 		speak(appWord)
 	} else if cmdAdd.Used {
 		addTranslation(appWord)
 	} else if cmdUpdate.Used {
-		updateTranslation(appWord)
+		updateTranslation(appTranslationID, appWord)
 	} else if cmdDelete.Used {
-		deleteTranslation(appWord)
+		deleteTranslation(appTranslationID)
 	} else {
 		/*
 			if no correct subcommand is given, a general help is displayed

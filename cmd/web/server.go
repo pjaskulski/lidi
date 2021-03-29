@@ -15,7 +15,11 @@ var cfg struct {
 	dsn  *string
 }
 
-var db *sql.DB
+type DictionaryDatabase struct {
+	db *sql.DB
+}
+
+var lidiDB DictionaryDatabase
 var err error
 
 func main() {
@@ -25,11 +29,11 @@ func main() {
 	flag.Parse()
 
 	// połączenie z bazą danych
-	db, err = openDB(*cfg.dsn)
+	err = lidiDB.openDB(*cfg.dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer lidiDB.db.Close()
 
 	// router, definicje endpointów
 	router := RegisterRoutes()
