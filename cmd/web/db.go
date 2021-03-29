@@ -74,7 +74,7 @@ func (ldb *DictionaryDatabase) recordUpdate(id int, english, polish string) (boo
 	}
 
 	if count == 0 {
-		return false, errors.New("update failed")
+		return false, errors.New("database - update record failed")
 	}
 	return true, nil
 }
@@ -97,7 +97,7 @@ func (ldb *DictionaryDatabase) recordDelete(id int) (bool, error) {
 	}
 
 	if count == 0 {
-		return false, errors.New("delete failed`")
+		return false, errors.New("database - delete record failed")
 	}
 	return true, nil
 }

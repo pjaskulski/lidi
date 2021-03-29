@@ -14,6 +14,10 @@ import (
 	"time"
 )
 
+type errorMessage struct {
+	Message string
+}
+
 var ErrorNotFound error = errors.New("no translation found")
 
 // funkcja pobiera tłumaczenie poprzez REST API z serwera lidi-server
@@ -137,14 +141,13 @@ func addTranslation(translation string) {
 		log.Fatal(err)
 	}
 
-	format := "application/json"
 	url := fmt.Sprintf("%s/api/add", cfg.addressFlag)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(post))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	req.Header.Set("Accept", format)
+	req.Header.Set("Accept", "application/json")
 
 	r, err := client.Do(req)
 	if err != nil {
@@ -153,7 +156,18 @@ func addTranslation(translation string) {
 	defer r.Body.Close()
 
 	if r.StatusCode != 201 {
-		log.Fatal("Failed to add a translation to the dictionary")
+		var msg errorMessage
+
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Fatal("Failed to add a translation to the dictionary: ", err.Error())
+		}
+
+		err = json.Unmarshal(body, &msg)
+		if err != nil {
+			log.Fatal("Failed to add a translation to the dictionary: ", err.Error())
+		}
+		log.Fatal("Failed to add a translation to the dictionary: ", msg.Message)
 	}
 
 	fmt.Println("New translation accepted")
@@ -185,14 +199,13 @@ func updateTranslation(recID string, word string) {
 		log.Fatal(err)
 	}
 
-	format := "application/json"
 	url := fmt.Sprintf("%s/api/update", cfg.addressFlag)
 	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(post))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	req.Header.Set("Accept", format)
+	req.Header.Set("Accept", "application/json")
 
 	r, err := client.Do(req)
 	if err != nil {
@@ -201,7 +214,18 @@ func updateTranslation(recID string, word string) {
 	defer r.Body.Close()
 
 	if r.StatusCode != 200 {
-		log.Fatal("Failed to update a translation")
+		var msg errorMessage
+
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Fatal("Failed to update a translation: ", err.Error())
+		}
+
+		err = json.Unmarshal(body, &msg)
+		if err != nil {
+			log.Fatal("Failed to update a translation: ", err.Error())
+		}
+		log.Fatal("Failed to update a translation: ", msg.Message)
 	}
 
 	fmt.Println("Update accepted")
@@ -226,14 +250,13 @@ func deleteTranslation(recID string) {
 		log.Fatal(err)
 	}
 
-	format := "application/json"
 	url := fmt.Sprintf("%s/api/delete", cfg.addressFlag)
 	req, err := http.NewRequest(http.MethodDelete, url, bytes.NewBuffer(post))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	req.Header.Set("Accept", format)
+	req.Header.Set("Accept", "application/json")
 
 	r, err := client.Do(req)
 	if err != nil {
@@ -242,7 +265,18 @@ func deleteTranslation(recID string) {
 	defer r.Body.Close()
 
 	if r.StatusCode != 200 {
-		log.Fatal("Failed to delete a translation")
+		var msg errorMessage
+
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Fatal("Failed to delete a translation: ", err.Error())
+		}
+
+		err = json.Unmarshal(body, &msg)
+		if err != nil {
+			log.Fatal("Failed to delete a translation: ", err.Error())
+		}
+		log.Fatal("Failed to delete a translation: ", msg.Message)
 	}
 
 	fmt.Println("Translation deleted")
