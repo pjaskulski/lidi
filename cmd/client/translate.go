@@ -23,6 +23,7 @@ var ErrorNotFound error = errors.New("no translation found")
 // funkcja pobiera tłumaczenie poprzez REST API z serwera lidi-server
 // zwracana jest odpowiedź w formie tablicy bajów i błąd (lub nil)
 func getTranslation(word string, lang string) ([]byte, error) {
+
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -63,6 +64,7 @@ func getTranslation(word string, lang string) ([]byte, error) {
 
 // tłumaczennie z angielskiego na polski
 func translateEnglish(word string, runSpeak bool, showID bool) {
+
 	data, err := getTranslation(word, "en")
 	if err != nil {
 		if err != ErrorNotFound {
@@ -93,6 +95,7 @@ func translateEnglish(word string, runSpeak bool, showID bool) {
 
 // tłumaczenie z polskiego na angielski
 func translatePolish(word string, runSpeak bool, showID bool) {
+
 	data, err := getTranslation(word, "pl")
 	if err != nil {
 		if err != ErrorNotFound {
@@ -121,10 +124,15 @@ func translatePolish(word string, runSpeak bool, showID bool) {
 	}
 }
 
+// dołączanie nowego tłumaczenia
 func addTranslation(translation string) {
+
 	words := strings.Split(translation, "=")
 	if len(words) != 2 {
 		log.Fatal("error: new translation in form English=Polish was expected ex. house=dom")
+	}
+	if words[0] == "" || words[1] == "" {
+		log.Fatal("error: empty value not accepted, English=Polish was expected")
 	}
 
 	client := &http.Client{
@@ -170,10 +178,28 @@ func addTranslation(translation string) {
 		log.Fatal("Failed to add a translation to the dictionary: ", msg.Message)
 	}
 
-	fmt.Println("New translation accepted")
+	var idJson Word
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal("Failed to read json: ", err.Error())
+	}
+
+	err = json.Unmarshal(body, &idJson)
+	if err != nil {
+		log.Fatal("Failed to unmarshal json: ", err.Error())
+	}
+
+	fmt.Println("New translation accepted", "ID:", idJson.ID)
 }
 
+// aktualizacja istniejącego tłumaczenia
 func updateTranslation(recID string, word string) {
+
+	if recID == "" {
+		log.Fatal("error: valid record id was expected")
+	}
+
 	_, err := strconv.Atoi(recID)
 	if err != nil {
 		log.Fatal("error: valid record id was expected")
@@ -181,7 +207,10 @@ func updateTranslation(recID string, word string) {
 
 	translation := strings.Split(word, "=")
 	if len(translation) != 2 {
-		log.Fatal("error: updated translation in form NewEnglish=NewPolish was expected ex. home=dom")
+		log.Fatal("error: updated translation in form English=Polish was expected ex. home=dom")
+	}
+	if translation[0] == "" || translation[1] == "" {
+		log.Fatal("error: empty value not accepted, English=Polish was expected")
 	}
 
 	client := &http.Client{
@@ -231,7 +260,13 @@ func updateTranslation(recID string, word string) {
 	fmt.Println("Update accepted")
 }
 
+// usunięcie tłumaczenia
 func deleteTranslation(recID string) {
+
+	if recID == "" {
+		log.Fatal("error: valid record id was expected")
+	}
+
 	_, err := strconv.Atoi(recID)
 	if err != nil {
 		log.Fatal("error: valid record id was expected")

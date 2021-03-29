@@ -7,6 +7,11 @@ import (
 	"log"
 )
 
+var (
+	ErrorUpdateFailed error = errors.New("database - update record failed")
+	ErrorDeleteFailed error = errors.New("database - delete record failed")
+)
+
 // połączenie z bazą danych
 func (ldb *DictionaryDatabase) openDB(dsn string) error {
 	hDb, err := sql.Open("mysql", dsn)
@@ -43,17 +48,23 @@ func (ldb *DictionaryDatabase) recordFind(source, word string) []Word {
 }
 
 // dołączanie rekordu do słownika
-func (ldb *DictionaryDatabase) recordAdd(english, polish string) (bool, error) {
+func (ldb *DictionaryDatabase) recordAdd(english, polish string) (bool, int64, error) {
 	stmt, err := ldb.db.Prepare("INSERT INTO engpol(english, polish) VALUES(?, ?)")
 	if err != nil {
-		return false, err
+		return false, 0, err
 	}
 
-	_, err = stmt.Exec(english, polish)
+	result, err := stmt.Exec(english, polish)
 	if err != nil {
-		return false, err
+		return false, 0, err
 	}
-	return true, nil
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return false, 0, err
+	}
+
+	return true, id, nil
 }
 
 // aktualizacja danych w słowniku
@@ -74,7 +85,7 @@ func (ldb *DictionaryDatabase) recordUpdate(id int, english, polish string) (boo
 	}
 
 	if count == 0 {
-		return false, errors.New("database - update record failed")
+		return false, ErrorUpdateFailed
 	}
 	return true, nil
 }
@@ -97,7 +108,7 @@ func (ldb *DictionaryDatabase) recordDelete(id int) (bool, error) {
 	}
 
 	if count == 0 {
-		return false, errors.New("database - delete record failed")
+		return false, ErrorDeleteFailed
 	}
 	return true, nil
 }

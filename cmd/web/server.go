@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -20,16 +21,15 @@ type DictionaryDatabase struct {
 }
 
 var lidiDB DictionaryDatabase
-var err error
 
 func main() {
-	// parametry serwera z linii komend
+	// parametry serwera z linii komend, domyślnie port 8080 a dsn ze zmiennej środowiskowej
 	cfg.addr = flag.String("addr", ":8080", "HTTP network address")
-	cfg.dsn = flag.String("dsn", "web:pass@/dictionary", "MySQL data source name")
+	cfg.dsn = flag.String("dsn", os.Getenv("LIDI_SERVER_SECRET"), "MySQL data source name")
 	flag.Parse()
 
 	// połączenie z bazą danych
-	err = lidiDB.openDB(*cfg.dsn)
+	err := lidiDB.openDB(*cfg.dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
