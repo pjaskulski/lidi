@@ -1,5 +1,5 @@
 # lidi
-lidi - a little English-Polish dictionary, MySQL app with REST API and command-line client in Golang
+lidi - a little English-Polish dictionary, MySQL database + REST API server and command-line client in Golang (with text to speech thanks Google API).
 
 MySQL database definition:
 `./database/database.sql`
