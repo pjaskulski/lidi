@@ -23,7 +23,7 @@ Client:
 
 ```
 Usage:
-    lidi [en|pl|speak|add|update|delete]
+    lidi-client [en|pl|speak|add|update|delete]
 
   Subcommands: 
     en       Translate from English to Polish
