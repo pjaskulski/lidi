@@ -3,3 +3,6 @@ build-client:
 
 build-server:
 	go build -o lidi-server ./cmd/web
+
+build-docker:
+        docker build . -t lidi-server-alpine
