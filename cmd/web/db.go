@@ -5,22 +5,47 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 )
 
 var (
 	ErrorUpdateFailed error = errors.New("database - update record failed")
 	ErrorDeleteFailed error = errors.New("database - delete record failed")
+	ErrorServerFailed error = errors.New("unable to connect to mysql server")
 )
 
 // połączenie z bazą danych
 func (ldb *DictionaryDatabase) openDB(dsn string) error {
-	hDb, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return err
+	var hDb *sql.DB
+	var err error
+	var count int = 0
+
+	for {
+		count += 1
+
+		hDb, err = sql.Open("mysql", dsn)
+		if err != nil {
+			return err
+		}
+
+		err = hDb.Ping()
+		if err == nil {
+			fmt.Println("mySQL server is up.")
+			break
+		}
+
+		if count <= *cfg.wait {
+			if count%2 == 0 {
+				fmt.Println("Waiting for the mySQL server...", err.Error())
+			}
+			time.Sleep(1 * time.Second)
+			continue
+		} else {
+			return ErrorServerFailed
+		}
+
 	}
-	if err = hDb.Ping(); err != nil {
-		return err
-	}
+
 	ldb.db = hDb
 	return nil
 }

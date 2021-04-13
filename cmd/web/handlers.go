@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -28,12 +29,13 @@ func getPolish(w http.ResponseWriter, r *http.Request) {
 	if len(words) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 	} else {
+		fmt.Println(words[0].Polish)
 		json.NewEncoder(w).Encode(words)
 	}
 
 }
 
-// pobranie tłumaczenia na anglielski
+// pobranie tłumaczenia na angielski
 func getEnglish(w http.ResponseWriter, r *http.Request) {
 	var words []Word
 

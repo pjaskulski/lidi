@@ -15,3 +15,7 @@
 # vendor/
 lidi-server
 lidi-client
+mysql_connect.sh
+run_lidi_mysql.sh
+build_mysql_image.sh
+build_server_image.sh

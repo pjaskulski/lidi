@@ -14,6 +14,7 @@ import (
 var cfg struct {
 	addr *string
 	dsn  *string
+	wait *int
 }
 
 type DictionaryDatabase struct {
@@ -25,6 +26,7 @@ var lidiDB DictionaryDatabase
 func main() {
 	// parametry serwera z linii komend, domyślnie port 8080 a dsn ze zmiennej środowiskowej
 	cfg.addr = flag.String("addr", ":8080", "HTTP network address")
+	cfg.wait = flag.Int("wait", 120, "time to wait for server (in sec)")
 	cfg.dsn = flag.String("dsn", os.Getenv("LIDI_SERVER_SECRET"), "MySQL data source name")
 	flag.Parse()
 
@@ -33,6 +35,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer lidiDB.db.Close()
 
 	// router, definicje endpointów

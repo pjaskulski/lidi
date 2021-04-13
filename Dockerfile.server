@@ -19,4 +19,4 @@ RUN go build -o lidi-server ./cmd/web
 WORKDIR /dist
 RUN cp /build/lidi-server .
 EXPOSE 8080
-CMD ["/dist/lidi-server"]
+CMD ["/dist/lidi-server", "-dsn", "web:pass@tcp(mysql:3306)/dictionary", "-wait", "20"]

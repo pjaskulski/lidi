@@ -1,31 +1,43 @@
 version: "3.8"
 services:    
-          
-    mysql:
-        build: ./database/
-        volumes:
-        - type: volume
-          source: lidi-vol
-          target: /var/lib/mysql
-        restart: always
-        networks:
-          lidi-net:          
-        ports:
-          - 3310:3306
-    
-    lidi-server:
-        depends_on:
-          - mysql
-        build: .
-        command: /dist/lidi-server -dsn "web:pass@tcp(localhost:3310)/dictionary"
-        ports:
-          - target: 8080
-            published: 8080
-        networks:
-          - lidi-net
+  
+  lidi-server:
+    container_name: lidi-server
+    depends_on:
+      - mysql
+    build: 
+      context: .
+      dockerfile: Dockerfile.server
+    command: /dist/lidi-server -dsn "web:pass@tcp(mysql:3306)/dictionary" -wait 120
+    ports:
+      - target: 8080
+        published: 8080
+    networks:
+      - lidi-net
+  
+  mysql:
+    container_name: lidi-mysql
+    environment:
+        LANG: C.UTF-8
+        ENV MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        ENV MYSQL_DATABASE: dictionary
+        ENV MYSQL_INITDB_SKIP_TZINFO: 1
+    build:         
+      context: .
+      dockerfile: Dockerfile.mysql
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+    volumes:
+      - type: volume
+        source: lidi-vol
+        target: /var/lib/mysql
+    restart: always
+    networks:
+      lidi-net:          
+    ports:
+      - 3310:3306
 
 networks:
-    lidi-net:
+  lidi-net:
 
 volumes:
-    lidi-vol:
+  lidi-vol:
