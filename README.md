@@ -49,6 +49,13 @@ Usage:
                      ./lidi-client delete 16354
 ```
 
+Docker:
+
+```
+  1. docker-compose up
+  2. ./lidi-client en house 
+```
+
 Speak command (and -p flag) use [htgo-tts](https://github.com/hegedustibor/htgo-tts) lib,
 htgo-tts needs mplayer. 
 
