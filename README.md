@@ -49,7 +49,7 @@ Usage:
                      ./lidi-client delete 16354
 ```
 
-Docker:
+**Docker:**
 
 ```
   1. docker-compose up
