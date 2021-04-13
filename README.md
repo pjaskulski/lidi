@@ -7,6 +7,16 @@ MySQL database definition:
 English-Polish dictionary, 9900 words:
 `words.csv`
 
+**Docker:**
+
+```
+  1. docker-compose up
+  2. go build -o lidi-client ./cmd/client
+  3. ./lidi-client en house 
+```
+
+**Or:**
+
 Serwer:
 `go build -o lidi-server ./cmd/web`
 
@@ -49,12 +59,6 @@ Usage:
                      ./lidi-client delete 16354
 ```
 
-**Docker:**
-
-```
-  1. docker-compose up
-  2. ./lidi-client en house 
-```
 
 Speak command (and -p flag) use [htgo-tts](https://github.com/hegedustibor/htgo-tts) lib,
 htgo-tts needs mplayer. 
