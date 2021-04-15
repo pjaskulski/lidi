@@ -1,4 +1,5 @@
-FROM golang:alpine
+# obraz tymczasowy do kompilacji serwera ze źródeł w Go
+FROM golang:alpine as build
 
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
@@ -16,7 +17,9 @@ COPY ./cmd/web .
 WORKDIR /build
 RUN go build -o lidi-server ./cmd/web
 
+# obraz docelowy ze skompilowanym programem ze źródeł w Go
+FROM alpine
 WORKDIR /dist
-RUN cp /build/lidi-server .
+COPY --from=build /build/lidi-server . 
 EXPOSE 8080
 CMD ["/dist/lidi-server", "-dsn", "web:pass@tcp(mysql:3306)/dictionary", "-wait", "20"]
