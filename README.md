@@ -1,5 +1,5 @@
 # lidi
-lidi - a little English-Polish dictionary, MySQL database + REST API server and command-line client in Golang (with text to speech thanks to Google API).
+lidi - a little English-Polish dictionary, MySQL database + REST API server and command-line client in Golang (with text to speech thanks to Google API) + desktop client (fyne).
 
 MySQL database definition:
 `./database/database.sql`
@@ -59,6 +59,8 @@ Usage:
                      ./lidi-client delete 16354
 ```
 
+Desktop:
+`go build -o lidi-dekstop ./cmd/desktop`
 
 Speak command (and -p flag) use [htgo-tts](https://github.com/hegedustibor/htgo-tts) lib,
 htgo-tts needs mplayer. 
