@@ -39,9 +39,13 @@ func main() {
 		})
 
 	searchText := widget.NewEntry()
+	searchText.SetPlaceHolder("word")
+	searchText.ExtendBaseWidget(searchText)
 	searchBtn := widget.NewButton("Search", searchWord)
-	rowSearch := container.New(layout.NewHBoxLayout())
+	rowSearch := container.New(layout.NewBorderLayout(nil, nil, nil, searchBtn))
+
 	rowSearch.Add(searchText)
+	rowSearch.Add(layout.NewSpacer())
 	rowSearch.Add(searchBtn)
 
 	add := widget.NewButton("Append", func() {
