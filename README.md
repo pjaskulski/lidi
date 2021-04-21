@@ -62,6 +62,7 @@ Usage:
 Note: speak command (and -p flag) use [htgo-tts](https://github.com/hegedustibor/htgo-tts) lib,
 htgo-tts needs mplayer. 
 
+![Screen](/lidi-client.png)
 
 Desktop:
 `go build -o lidi-desktop ./cmd/desktop`
