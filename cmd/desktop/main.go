@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
@@ -69,14 +68,14 @@ func getTranslation(word string, lang string) ([]byte, error) {
 	url := fmt.Sprintf("%s/api/%s/%s", addressFlag, lang, word)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	req.Header.Set("Accept", format)
 
 	r, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer r.Body.Close()
 
@@ -94,7 +93,7 @@ func getTranslation(word string, lang string) ([]byte, error) {
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	return data, nil
 }
@@ -102,11 +101,19 @@ func getTranslation(word string, lang string) ([]byte, error) {
 // tłumaczennie z angielskiego na polski
 func translateEnglish(word string) []string {
 	var result []string
-	answer, err := getTranslation(word, "en")
+	var answer []byte
+	var err error
+	var from string = "eng"
+
+	answer, err = getTranslation(word, "en")
+
+	// if eng->pl translation not found try pl->eng
+	if err != nil && err == ErrorNotFound {
+		from = "pl"
+		answer, err = getTranslation(word, "pl")
+	}
+
 	if err != nil {
-		if err != ErrorNotFound {
-			log.Fatal(err)
-		}
 		result = append(result, err.Error())
 		return result
 	}
@@ -120,11 +127,17 @@ func translateEnglish(word string) []string {
 	}
 
 	for _, item := range translateWords {
-		result = append(result, item.English+" = "+item.Polish)
+		var line string
+		if from == "eng" {
+			line = item.English + " = " + item.Polish
+		} else {
+			line = item.Polish + " = " + item.English
+		}
+
+		result = append(result, line)
 	}
 
 	return result
-
 }
 
 func startSearch(word string) {
@@ -139,7 +152,7 @@ func main() {
 	myApp := app.New()
 	myApp.Settings().SetTheme(theme.DarkTheme())
 	myWindow := myApp.NewWindow("Lidi desktop")
-	myWindow.Resize(fyne.NewSize(600, 400))
+	myWindow.Resize(fyne.NewSize(720, 400))
 
 	lista := []string{}
 

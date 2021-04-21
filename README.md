@@ -67,6 +67,7 @@ Desktop:
 
 ![Screen](/lidi-desktop.png)
 
+![Screen](/lidi-desktop-pl.png)
 
 Note: server, client and desktop tested on Linux only.
 
