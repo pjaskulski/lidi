@@ -58,14 +58,17 @@ Usage:
                      ./lidi-client update 16354 tree=drzewo  
                      ./lidi-client delete 16354
 ```
-
-Desktop:
-`go build -o lidi-dekstop ./cmd/desktop`
-
-Speak command (and -p flag) use [htgo-tts](https://github.com/hegedustibor/htgo-tts) lib,
+Note: speak command (and -p flag) use [htgo-tts](https://github.com/hegedustibor/htgo-tts) lib,
 htgo-tts needs mplayer. 
 
-Note: server and client tested on Linux only.
+
+Desktop:
+`go build -o lidi-desktop ./cmd/desktop`
+
+![Screen](/lidi-desktop.png)
+
+
+Note: server, client and desktop tested on Linux only.
 
 English word list: [The BNC/COCA headword lists](https://www.wgtn.ac.nz/lals/resources/paul-nations-resources/vocabulary-lists).
 Translation: Google Translate, printed dictionaries, memory.
