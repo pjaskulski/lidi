@@ -13,6 +13,7 @@ English-Polish dictionary, 9900 words:
   1. docker-compose up
   2. go build -o lidi-client ./cmd/client
   3. ./lidi-client en house 
+  4. ./lidi-desktop
 ```
 
 **Or:**
