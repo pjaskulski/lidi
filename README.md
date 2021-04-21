@@ -1,11 +1,9 @@
 # lidi
 lidi - a little English-Polish dictionary, MySQL database + REST API server and command-line client in Golang (with text to speech thanks to Google API) + desktop client (fyne).
 
-MySQL database definition:
+MySQL database definition + English-Polish dictionary, 10000 words:
 `./database/database.sql`
 
-English-Polish dictionary, 9900 words:
-`words.csv`
 
 **Docker:**
 
