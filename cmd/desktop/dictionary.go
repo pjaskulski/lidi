@@ -11,15 +11,14 @@ import (
 
 var ErrorNotFound error = errors.New("no translation found")
 
-// funkcja pobiera tłumaczenie poprzez REST API z serwera lidi-server
-// zwracana jest odpowiedź w formie tablicy bajów i błąd (lub nil)
+// function gets translation via REST API from lidi-server,
+// response is returned as a byte array and error (or nil)
 func getTranslation(word string, lang string) ([]byte, error) {
 
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
 
-	addressFlag := "http://localhost:8080"
 	format := "application/json"
 	url := fmt.Sprintf("%s/api/%s/%s", addressFlag, lang, word)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -54,8 +53,8 @@ func getTranslation(word string, lang string) ([]byte, error) {
 	return data, nil
 }
 
-// tłumaczennie z angielskiego na polski
-func translateEnglish(word string) []string {
+// translation from English to Polish or from Polish to English
+func translateWord(word string) []string {
 	var result []string
 	var answer []byte
 	var err error

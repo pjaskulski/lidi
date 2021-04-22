@@ -16,7 +16,10 @@ MySQL database definition + English-Polish dictionary, 10000 words:
 
 **Or:**
 
-Serwer:
+Server:
+
+Setup mysql manually, database.sql file contains the table definition and data. 
+
 `go build -o lidi-server ./cmd/web`
 
 ```

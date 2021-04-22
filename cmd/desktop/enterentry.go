@@ -5,6 +5,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// widget with a text field with support for Esc and Enter keys
+
 type enterEntry struct {
 	widget.Entry
 }

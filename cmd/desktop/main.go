@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -17,16 +19,25 @@ type Word struct {
 }
 
 var data binding.ExternalStringList
+var addressFlag string
 
+// translation of the word from the text field
 func startSearch(word string) {
 	data.Set(nil)
-	words := translateEnglish(word)
+	words := translateWord(word)
 	for _, item := range words {
 		data.Append(item)
 	}
 }
 
 func main() {
+	// api server address (lidi-server), if no environment variable is defined
+	// (DICTIONARY_SERVER), app takes the default value (http://localhost:8080)
+	addressFlag = os.Getenv("DICTIONARY_SERVER")
+	if addressFlag == "" {
+		addressFlag = "http://localhost:8080"
+	}
+
 	myApp := app.New()
 	myApp.Settings().SetTheme(theme.DarkTheme())
 	myWindow := myApp.NewWindow("Lidi desktop")
