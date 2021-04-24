@@ -57,7 +57,9 @@ func newKeyList(data binding.ExternalStringList) *keyList {
 			)
 		},
 		func(i binding.DataItem, o fyne.CanvasObject) {
-			o.(*fyne.Container).Objects[0].(*widget.Label).Bind(i.(binding.String))
+			item := i.(binding.String)
+			textLabel := o.(*fyne.Container).Objects[0].(*widget.Label)
+			textLabel.Bind(item)
 		}), -1}
 
 	list.ExtendBaseWidget(list)
