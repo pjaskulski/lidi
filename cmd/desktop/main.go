@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -19,8 +20,9 @@ type Word struct {
 }
 
 var data binding.ExternalStringList
-var addressFlag string
 var list *keyList
+var addressFlag string
+var currentWord string = ""
 
 // translation of the word from the text field
 func startSearch(word string) {
@@ -29,8 +31,7 @@ func startSearch(word string) {
 	for _, item := range words {
 		data.Append(item)
 	}
-	list.Unselect(0)
-	list.Select(0)
+	list.SelectNew()
 }
 
 func main() {
@@ -65,7 +66,6 @@ func main() {
 
 	list = newKeyList(data)
 	list.OnSelected = func(id widget.ListItemID) {
-		list.current = id
 		currentWord, _ = data.GetValue(id)
 	}
 
@@ -84,6 +84,16 @@ func main() {
 	rowSearch.Add(searchText)
 	rowSearch.Add(layout.NewSpacer())
 	rowSearch.Add(searchBtn)
+
+	ctrlSpace := desktop.CustomShortcut{KeyName: fyne.KeySpace, Modifier: desktop.ControlModifier}
+	myWindow.Canvas().AddShortcut(&ctrlSpace, func(shortcut fyne.Shortcut) {
+		speak(currentWord)
+	})
+
+	ctrlF := desktop.CustomShortcut{KeyName: fyne.KeyF, Modifier: desktop.ControlModifier}
+	myWindow.Canvas().AddShortcut(&ctrlF, func(shortcut fyne.Shortcut) {
+		myWindow.Canvas().Focus(searchText)
+	})
 
 	myWindow.SetContent(container.NewBorder(rowSearch, playBtn, nil, nil, list))
 	myWindow.Canvas().Focus(searchText)

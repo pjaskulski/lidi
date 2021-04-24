@@ -5,8 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"time"
+
+	htgotts "github.com/hegedustibor/htgo-tts"
 )
 
 var ErrorNotFound error = errors.New("no translation found")
@@ -94,4 +98,23 @@ func translateWord(word string) []string {
 	}
 
 	return result
+}
+
+/* function converts text to speech, uses google api thanks
+   htgo-tts library, play downloaded mp3 file via mplayer
+   the downloaded files for English words are stored in a subdirectory
+   'lidi-audio' in the user's home directory therefore need not be
+   retrieved again the next time the word is pronounced. */
+func speak(word string) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	speakLang := "en"
+	if from == "en" {
+		speakLang = "pl"
+	}
+	speech := htgotts.Speech{Folder: home + "/lidi-audio", Language: speakLang}
+	speech.Speak(word)
 }
