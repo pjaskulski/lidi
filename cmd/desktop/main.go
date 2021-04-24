@@ -20,6 +20,7 @@ type Word struct {
 
 var data binding.ExternalStringList
 var addressFlag string
+var list *keyList
 
 // translation of the word from the text field
 func startSearch(word string) {
@@ -28,6 +29,8 @@ func startSearch(word string) {
 	for _, item := range words {
 		data.Append(item)
 	}
+	list.Unselect(0)
+	list.Select(0)
 }
 
 func main() {
@@ -43,17 +46,28 @@ func main() {
 	myWindow := myApp.NewWindow("Lidi desktop")
 	myWindow.Resize(fyne.NewSize(720, 400))
 
+	settingsItem := fyne.NewMenuItem("Settings", nil)
+	settingsItem.ChildMenu = fyne.NewMenu("",
+		fyne.NewMenuItem("Dark theme", func() {
+			myApp.Settings().SetTheme(theme.DarkTheme())
+		}),
+		fyne.NewMenuItem("Light theme", func() {
+			myApp.Settings().SetTheme(theme.LightTheme())
+		}),
+	)
+	file := fyne.NewMenu("File", settingsItem)
+	mainMenu := fyne.NewMainMenu(file)
+	myWindow.SetMainMenu(mainMenu)
+
 	lista := []string{}
 
 	data = binding.BindStringList(&lista)
 
-	list := widget.NewListWithData(data,
-		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
-		},
-		func(i binding.DataItem, o fyne.CanvasObject) {
-			o.(*widget.Label).Bind(i.(binding.String))
-		})
+	list = newKeyList(data)
+	list.OnSelected = func(id widget.ListItemID) {
+		list.current = id
+		currentWord, _ = data.GetValue(id)
+	}
 
 	searchText := newEnterEntry()
 	searchText.SetPlaceHolder("type a word to translate...")
@@ -62,12 +76,16 @@ func main() {
 		startSearch(searchText.Text)
 	})
 
+	playBtn := widget.NewButtonWithIcon("Play", theme.MediaPlayIcon(), func() {
+		speak(currentWord)
+	})
+
 	rowSearch := container.New(layout.NewBorderLayout(nil, nil, nil, searchBtn))
 	rowSearch.Add(searchText)
 	rowSearch.Add(layout.NewSpacer())
 	rowSearch.Add(searchBtn)
 
-	myWindow.SetContent(container.NewBorder(rowSearch, nil, nil, nil, list))
+	myWindow.SetContent(container.NewBorder(rowSearch, playBtn, nil, nil, list))
 	myWindow.Canvas().Focus(searchText)
 	myWindow.ShowAndRun()
 }

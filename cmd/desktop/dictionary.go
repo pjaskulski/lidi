@@ -10,6 +10,7 @@ import (
 )
 
 var ErrorNotFound error = errors.New("no translation found")
+var from string
 
 // function gets translation via REST API from lidi-server,
 // response is returned as a byte array and error (or nil)
@@ -58,14 +59,14 @@ func translateWord(word string) []string {
 	var result []string
 	var answer []byte
 	var err error
-	var from string = "eng"
 
-	answer, err = getTranslation(word, "en")
+	from = "en"
+	answer, err = getTranslation(word, from)
 
 	// if eng->pl translation not found try pl->eng
 	if err != nil && err == ErrorNotFound {
 		from = "pl"
-		answer, err = getTranslation(word, "pl")
+		answer, err = getTranslation(word, from)
 	}
 
 	if err != nil {
@@ -83,10 +84,10 @@ func translateWord(word string) []string {
 
 	for _, item := range translateWords {
 		var line string
-		if from == "eng" {
-			line = item.English + " = " + item.Polish
+		if from == "en" {
+			line = item.Polish
 		} else {
-			line = item.Polish + " = " + item.English
+			line = item.English
 		}
 
 		result = append(result, line)
