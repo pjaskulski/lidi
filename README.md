@@ -70,8 +70,6 @@ Desktop:
 
 ![Screen](/lidi-desktop.png)
 
-![Screen](/lidi-desktop-pl.png)
-
 Note: server, client and desktop tested on Linux only.
 
 English word list: [The BNC/COCA headword lists](https://www.wgtn.ac.nz/lals/resources/paul-nations-resources/vocabulary-lists).
