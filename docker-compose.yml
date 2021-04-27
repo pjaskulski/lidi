@@ -35,6 +35,14 @@ services:
       lidi-net:          
     ports:
       - 3310:3306
+  
+  redis:
+    container_name: lidi-redis
+    image: redis:6
+    networks: 
+      lidi-net:
+    ports:
+      - 6379:6379
 
 networks:
   lidi-net:

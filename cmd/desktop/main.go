@@ -61,7 +61,6 @@ func main() {
 	myWindow.SetMainMenu(mainMenu)
 
 	lista := []string{}
-
 	data = binding.BindStringList(&lista)
 
 	list = newKeyList(data)
@@ -95,7 +94,9 @@ func main() {
 		myWindow.Canvas().Focus(searchText)
 	})
 
-	myWindow.SetContent(container.NewBorder(rowSearch, playBtn, nil, nil, list))
+	myListContainer := container.New(layout.NewPaddedLayout(), list)
+
+	myWindow.SetContent(container.NewBorder(rowSearch, playBtn, nil, nil, myListContainer))
 	myWindow.Canvas().Focus(searchText)
 	myWindow.ShowAndRun()
 }

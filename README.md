@@ -1,5 +1,5 @@
 # lidi
-lidi - a little English-Polish dictionary, MySQL database + REST API server (Go) + command-line client in Golang (with text to speech thanks to Google API) + desktop client (Go, fyne).
+lidi - a little English-Polish dictionary, MySQL database + Redis + REST API server (Go) + command-line client in Golang (with text to speech thanks to Google API) + desktop client (Go, fyne).
 
 MySQL database definition + English-Polish dictionary, 10000 words:
 `./database/database.sql`
@@ -18,7 +18,8 @@ MySQL database definition + English-Polish dictionary, 10000 words:
 
 Server:
 
-Setup mysql manually, database.sql file contains the table definition and data. 
+Setup MySQL manually, database.sql file contains the table definition and data. 
+install Redis.
 
 `go build -o lidi-server ./cmd/web`
 

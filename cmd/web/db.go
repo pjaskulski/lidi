@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/gomodule/redigo/redis"
 )
 
 var (
@@ -51,8 +53,35 @@ func (ldb *DictionaryDatabase) openDB(dsn string) error {
 }
 
 // wyszukiwanie tłumaczenia na angielski (source=polish) lub polski (source=english)
+// jeżeli source=english przeszukiwana jest najpierw szybsza baza Redis
 func (ldb *DictionaryDatabase) recordFind(source, word string) []Word {
 	var words []Word
+	var conn redis.Conn
+	var err error
+
+	if source == "english" {
+		conn, err = redis.Dial("tcp", "redis:6379")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Close()
+
+		reply, err := redis.StringMap(conn.Do("HGETALL", word))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if len(reply) != 0 {
+			fmt.Println(word, "- Redis")
+			rWord := Word{}
+			rWord.ID = reply["id"]
+			rWord.Polish = reply["polish"]
+			rWord.English = reply["english"]
+			words = append(words, rWord)
+
+			return words
+		}
+	}
 
 	query := fmt.Sprintf("SELECT id, english, polish from engpol where %s=?", source)
 	result, err := ldb.db.Query(query, word)
@@ -69,6 +98,20 @@ func (ldb *DictionaryDatabase) recordFind(source, word string) []Word {
 		}
 		words = append(words, word)
 	}
+
+	// save (only first) translations if exists
+	if source == "english" && len(words) > 0 {
+		fmt.Println(word, "- MySQL")
+		_, err = conn.Do("HSET", word,
+			"english", words[0].English,
+			"polish", words[0].Polish,
+			"id", words[0].ID,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	return words
 }
 
