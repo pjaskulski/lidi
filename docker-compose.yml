@@ -8,7 +8,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.server
-    command: /dist/lidi-server -dsn "web:pass@tcp(mysql:3306)/dictionary" -wait 120
+    command: /dist/lidi-server -dsn "web:pass@tcp(mysql:3306)/dictionary" -rdsn "redis:6379" -wait 120
     ports:
       - target: 8080
         published: 8080

@@ -14,6 +14,7 @@ import (
 var cfg struct {
 	addr *string
 	dsn  *string
+	rdsn *string
 	wait *int
 }
 
@@ -28,6 +29,7 @@ func main() {
 	cfg.addr = flag.String("addr", ":8080", "HTTP network address")
 	cfg.wait = flag.Int("wait", 120, "time to wait for server (in sec)")
 	cfg.dsn = flag.String("dsn", os.Getenv("LIDI_SERVER_SECRET"), "MySQL data source name")
+	cfg.rdsn = flag.String("rdsn", os.Getenv("LIDI_REDIS_ADDR"), "Redis data source name")
 	flag.Parse()
 
 	// połączenie z bazą danych

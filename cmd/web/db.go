@@ -60,13 +60,13 @@ func (ldb *DictionaryDatabase) recordFind(source, word string) []Word {
 	var err error
 
 	if source == "english" {
-		conn, err = redis.Dial("tcp", "redis:6379")
+		conn, err = redis.Dial("tcp", *cfg.rdsn)
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer conn.Close()
 
-		reply, err := redis.StringMap(conn.Do("HGETALL", word))
+		reply, err := redis.StringMap(conn.Do("HGETALL", "en:"+word))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -102,7 +102,7 @@ func (ldb *DictionaryDatabase) recordFind(source, word string) []Word {
 	// save (only first) translations if exists
 	if source == "english" && len(words) > 0 {
 		fmt.Println(word, "- MySQL")
-		_, err = conn.Do("HSET", word,
+		_, err = conn.Do("HSET", "en:"+word,
 			"english", words[0].English,
 			"polish", words[0].Polish,
 			"id", words[0].ID,
